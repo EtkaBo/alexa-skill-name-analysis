@@ -1,0 +1,22 @@
+{
+  "name": "alexa-skills-name-analysis",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EtkaBo/alexa-skills-name-analysis.git"
+  },
+  "author": "Etka Bayramoglu",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/EtkaBo/alexa-skills-name-analysis/issues"
+  },
+  "homepage": "https://github.com/EtkaBo/alexa-skills-name-analysis#readme",
+  "dependencies": {
+    "express": "^4.16.4"
+  }
+}
