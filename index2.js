@@ -4,72 +4,74 @@
 /* eslint-disable  no-console */
 
 const Alexa = require('ask-sdk-core');
-const questions = require('./questions');
+// const questions = require('./questions');
 const i18n = require('i18next');
 const sprintf = require('i18next-sprintf-postprocessor');
 const steps = require('./steps');
+const analysis = require('./analysis');
+const nameAnalysisTexts = require('./nameAnalysisTexts');
 
 const ANSWER_COUNT = 4;
 const GAME_LENGTH = 5;
 
-function populateGameQuestions(translatedQuestions) {
-  const gameQuestions = [];
-  const indexList = [];
-  let index = translatedQuestions.length;
-  if (GAME_LENGTH > index) {
-    throw new Error('Invalid Game Length.');
-  }
+// function populateGameQuestions(translatedQuestions) {
+//   const gameQuestions = [];
+//   const indexList = [];
+//   let index = translatedQuestions.length;
+//   if (GAME_LENGTH > index) {
+//     throw new Error('Invalid Game Length.');
+//   }
 
-  for (let i = 0; i < translatedQuestions.length; i += 1) {
-    indexList.push(i);
-  }
+//   for (let i = 0; i < translatedQuestions.length; i += 1) {
+//     indexList.push(i);
+//   }
 
-  for (let j = 0; j < GAME_LENGTH; j += 1) {
-    const rand = Math.floor(Math.random() * index);
-    index -= 1;
+//   for (let j = 0; j < GAME_LENGTH; j += 1) {
+//     const rand = Math.floor(Math.random() * index);
+//     index -= 1;
 
-    const temp = indexList[index];
-    indexList[index] = indexList[rand];
-    indexList[rand] = temp;
-    gameQuestions.push(indexList[index]);
-  }
-  return gameQuestions;
-}
+//     const temp = indexList[index];
+//     indexList[index] = indexList[rand];
+//     indexList[rand] = temp;
+//     gameQuestions.push(indexList[index]);
+//   }
+//   return gameQuestions;
+// }
 
-function populateRoundAnswers(
-  gameQuestionIndexes,
-  correctAnswerIndex,
-  correctAnswerTargetLocation,
-  translatedQuestions
-) {
-  const answers = [];
-  const translatedQuestion = translatedQuestions[gameQuestionIndexes[correctAnswerIndex]];
-  const answersCopy = translatedQuestion[Object.keys(translatedQuestion)[0]].slice();
-  let index = answersCopy.length;
+// function populateRoundAnswers(
+//   gameQuestionIndexes,
+//   correctAnswerIndex,
+//   correctAnswerTargetLocation,
+//   translatedQuestions
+// ) {
+//   const answers = [];
+//   const translatedQuestion = translatedQuestions[gameQuestionIndexes[correctAnswerIndex]];
+//   const answersCopy = translatedQuestion[Object.keys(translatedQuestion)[0]].slice();
+//   let index = answersCopy.length;
 
-  if (index < ANSWER_COUNT) {
-    throw new Error('Not enough answers for question.');
-  }
+//   if (index < ANSWER_COUNT) {
+//     throw new Error('Not enough answers for question.');
+//   }
 
-  // Shuffle the answers, excluding the first element which is the correct answer.
-  for (let j = 1; j < answersCopy.length; j += 1) {
-    const rand = Math.floor(Math.random() * (index - 1)) + 1;
-    index -= 1;
+//   // Shuffle the answers, excluding the first element which is the correct answer.
+//   for (let j = 1; j < answersCopy.length; j += 1) {
+//     const rand = Math.floor(Math.random() * (index - 1)) + 1;
+//     index -= 1;
 
-    const swapTemp1 = answersCopy[index];
-    answersCopy[index] = answersCopy[rand];
-    answersCopy[rand] = swapTemp1;
-  }
+//     const swapTemp1 = answersCopy[index];
+//     answersCopy[index] = answersCopy[rand];
+//     answersCopy[rand] = swapTemp1;
+//   }
 
-  // Swap the correct answer into the target location
-  for (let i = 0; i < ANSWER_COUNT; i += 1) {
-    answers[i] = answersCopy[i];
-  }
-  const swapTemp2 = answers[0];
-  answers[0] = answers[correctAnswerTargetLocation];
-  answers[correctAnswerTargetLocation] = swapTemp2;
-  return answers;
-}
+//   // Swap the correct answer into the target location
+//   for (let i = 0; i < ANSWER_COUNT; i += 1) {
+//     answers[i] = answersCopy[i];
+//   }
+//   const swapTemp2 = answers[0];
+//   answers[0] = answers[correctAnswerTargetLocation];
+//   answers[correctAnswerTargetLocation] = swapTemp2;
+//   return answers;
+// }
 
 function isAnswerSlotValid(intent) {
   const answerSlotFilled = intent
@@ -174,14 +176,19 @@ function handleUserGuess(userGaveUp, handlerInput) {
     .getResponse();
 }
 
+
+
 function startGame(newGame, handlerInput) {
   const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
+
+//   if(requestAttributes.steps === steps[1])
+
   let speechOutput = newGame
     ? requestAttributes.t('NEW_GAME_MESSAGE', requestAttributes.t('GAME_NAME'))
-      + requestAttributes.t('WELCOME_MESSAGE', GAME_LENGTH.toString())
+      + requestAttributes.t('WELCOME_MESSAGE')
     : '';
 
-  const translatedQuestions = requestAttributes.t('QUESTIONS');
+//   const translatedQuestions = requestAttributes.t('QUESTIONS');
 
 //   const gameQuestions = populateGameQuestions(translatedQuestions);
 //   const correctAnswerIndex = Math.floor(Math.random() * (ANSWER_COUNT));
@@ -199,25 +206,38 @@ function startGame(newGame, handlerInput) {
 //     repromptText += `${i + 1}. ${roundAnswers[i]}. `;
 //   }
 
-  speechOutput += repromptText;
+    // let repromptText = requestAttributes.t()
+
+    
+//   speechOutput += repromptText;
+// // // //   const sessionAttributes = {};
+
+// // // //   Object.assign(sessionAttributes, {
+// // // //     // speechOutput: repromptText,
+// // // //     // repromptText,
+// // // //     // currentQuestionIndex,
+// // // //     // step: steps[1],
+// // // //     // correctAnswerIndex: correctAnswerIndex + 1,
+// // // //     // questions: gameQuestions,
+// // // //     // score: 0,
+// // // //   });
+
+// // // //   handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
+
+
   const sessionAttributes = {};
 
   Object.assign(sessionAttributes, {
-    speechOutput: repromptText,
-    repromptText,
-    currentQuestionIndex,
-    step: steps[1],
-    correctAnswerIndex: correctAnswerIndex + 1,
-    questions: gameQuestions,
-    score: 0,
+    step: steps[1]
   });
 
   handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
-
+  
   return handlerInput.responseBuilder
     .speak(speechOutput)
-    .reprompt(repromptText)
-    .withSimpleCard(requestAttributes.t('GAME_NAME'), repromptText)
+    // .reprompt(repromptText)
+    .withSimpleCard(requestAttributes.t('GAME_NAME'))
+    .withShouldEndSession(false)
     .getResponse();
 }
 
@@ -232,13 +252,17 @@ function helpTheUser(newGame, handlerInput) {
   return handlerInput.responseBuilder.speak(speechOutput).reprompt(repromptText).getResponse();
 }
 
+
+
+
 /* jshint -W101 */
 const languageString = {
   en: {
     translation: {
-      QUESTIONS: questions.QUESTIONS_EN_US,
+    //   QUESTIONS: questions.QUESTIONS_EN_US,
       GAME_NAME: 'Etkas Name Analysis',
-      HELP_MESSAGE: 'I will ask you %s multiple choice questions. Respond with the number of the answer. For example, say one, two, three, or four. To start a new game at any time, say, start game. ',
+      HELP_MESSAGE: 'I can help you understand whether your first name is helping or hurting you… Please tell me your first name…',
+    //   HELP_MESSAGE: 'I will ask you %s multiple choice questions. Respond with the number of the answer. For example, say one, two, three, or four. To start a new game at any time, say, start game. ',
       REPEAT_QUESTION_MESSAGE: 'To repeat the last question, say, repeat. ',
       ASK_MESSAGE_START: 'Would you like to start playing?',
       HELP_REPROMPT: 'To give an answer to a question, respond with the number of the answer. ',
@@ -249,7 +273,8 @@ const languageString = {
       HELP_UNHANDLED: 'Say yes to continue, or no to end the game.',
       START_UNHANDLED: 'Say start to start a new game.',
       NEW_GAME_MESSAGE: 'Hello, Welcome to %s. ',
-      WELCOME_MESSAGE: 'I will ask you %s questions, try to get as many right as you can. Just say the number of the answer. Let\'s begin. ',
+      WELCOME_MESSAGE: 'I can help you understand whether your first name is helping or hurting you… Please tell me your first name…',
+    //   WELCOME_MESSAGE: 'I will ask you %s questions, try to get as many right as you can. Just say the number of the answer. Let\'s begin. ',
       ANSWER_CORRECT_MESSAGE: 'correct. ',
       ANSWER_WRONG_MESSAGE: 'wrong. ',
       CORRECT_ANSWER_MESSAGE: 'The correct answer is %s: %s. ',
@@ -261,19 +286,19 @@ const languageString = {
   },
   'en-US': {
     translation: {
-      QUESTIONS: questions.QUESTIONS_EN_US,
+    //   QUESTIONS: questions.QUESTIONS_EN_US,
       GAME_NAME: 'Etkas Name Analysis'
     },
   },
   'en-GB': {
     translation: {
-      QUESTIONS: questions.QUESTIONS_EN_GB,
+    //   QUESTIONS: questions.QUESTIONS_EN_GB,
       GAME_NAME: 'British Reindeer Trivia'
     },
   },
   de: {
     translation: {
-      QUESTIONS: questions.QUESTIONS_DE_DE,
+    //   QUESTIONS: questions.QUESTIONS_DE_DE,
       GAME_NAME: 'Wissenswertes über Rentiere in Deutsch',
       HELP_MESSAGE: 'Ich stelle dir %s Multiple-Choice-Fragen. Antworte mit der Zahl, die zur richtigen Antwort gehört. Sage beispielsweise eins, zwei, drei oder vier. Du kannst jederzeit ein neues Spiel beginnen, sage einfach „Spiel starten“. ',
       REPEAT_QUESTION_MESSAGE: 'Wenn die letzte Frage wiederholt werden soll, sage „Wiederholen“ ',
@@ -343,30 +368,30 @@ const HelpIntent = {
   },
 };
 
-const UnhandledIntent = {
-  canHandle() {
-    return true;
-  },
-  handle(handlerInput) {
-    const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-    const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
-    if (Object.keys(sessionAttributes).length === 0) {
-      const speechOutput = requestAttributes.t('START_UNHANDLED');
-      return handlerInput.attributesManager
-        .speak(speechOutput)
-        .reprompt(speechOutput)
-        .getResponse();
-    } else if (sessionAttributes.questions) {
-      const speechOutput = requestAttributes.t('TRIVIA_UNHANDLED', ANSWER_COUNT.toString());
-      return handlerInput.attributesManager
-        .speak(speechOutput)
-        .reprompt(speechOutput)
-        .getResponse();
-    }
-    const speechOutput = requestAttributes.t('HELP_UNHANDLED');
-    return handlerInput.attributesManager.speak(speechOutput).reprompt(speechOutput).getResponse();
-  },
-};
+// const UnhandledIntent = {
+//   canHandle() {
+//     return true;
+//   },
+//   handle(handlerInput) {
+//     const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+//     const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
+//     if (Object.keys(sessionAttributes).length === 0) {
+//       const speechOutput = requestAttributes.t('START_UNHANDLED');
+//       return handlerInput.attributesManager
+//         .speak(speechOutput)
+//         .reprompt(speechOutput)
+//         .getResponse();
+//     } else if (sessionAttributes.questions) {
+//       const speechOutput = requestAttributes.t('TRIVIA_UNHANDLED', ANSWER_COUNT.toString());
+//       return handlerInput.attributesManager
+//         .speak(speechOutput)
+//         .reprompt(speechOutput)
+//         .getResponse();
+//     }
+//     const speechOutput = requestAttributes.t('HELP_UNHANDLED');
+//     return handlerInput.attributesManager.speak(speechOutput).reprompt(speechOutput).getResponse();
+//   },
+// };
 
 const SessionEndedRequest = {
   canHandle(handlerInput) {
@@ -478,6 +503,74 @@ const ErrorHandler = {
   },
 };
 
+const ResponseToGenderIntent = {
+    canHandle(handlerInput) {
+        return handlerInput.requestEnvelope.request.type === 'IntentRequest'
+        && handlerInput.requestEnvelope.request.intent.name === 'ResponseToGenderIntent';
+        // const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+        // return sessionAttributes.step === steps[2];
+      },
+    handle(handlerInput) {
+        return handleGender(handlerInput);
+    }
+};
+
+const firstNameResponse = {
+    canHandle(handlerInput) {
+       
+        return handlerInput.requestEnvelope.request.type === 'IntentRequest'
+        && handlerInput.requestEnvelope.request.intent.name === 'FirstName';
+        // const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+        // return sessionAttributes.step === steps[1];
+
+        // return handlerInput.requestEnvelope.request.intent.name === 'FirstName';
+      },
+    handle(handlerInput) {
+        return handleFirstName(handlerInput);
+    }
+};
+
+function handleFirstName(handlerInput) {
+
+  const name = handlerInput.requestEnvelope.request.intent.slots.firstNames.value;
+
+    const sessionAttributes = {};
+
+  Object.assign(sessionAttributes, {
+     firstName: name,
+     step: steps[2]
+  });
+
+  handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
+
+  let speechOutput = 'May I learn your gender ?';
+
+  return handlerInput.responseBuilder
+  .speak(speechOutput)
+  // .reprompt(repromptText)
+//   .withSimpleCard(requestAttributes.t('GAME_NAME'))
+  .getResponse();
+    
+}
+
+function handleGender(handlerInput) {
+    let sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+
+    let textNum = analysis.hash(sessionAttributes.name, handlerInput.requestEnvelope.request.intent.slots.gender.value);
+
+    let speechOutput = nameAnalysisTexts.Phrases[textNum];
+
+
+
+    return handlerInput.responseBuilder
+    .speak(speechOutput)
+    // .reprompt(repromptText)
+    // .withSimpleCard(requestAttributes.t('GAME_NAME'))
+    .getResponse();
+}
+
+
+
 const skillBuilder = Alexa.SkillBuilders.custom();
 exports.handler = skillBuilder
   .addRequestHandlers(
@@ -490,8 +583,12 @@ exports.handler = skillBuilder
     CancelIntent,
     NoIntent,
     SessionEndedRequest,
-    UnhandledIntent
+    // UnhandledIntent,
+    firstNameResponse,
+    ResponseToGenderIntent
   )
   .addRequestInterceptors(LocalizationInterceptor)
   .addErrorHandlers(ErrorHandler)
   .lambda();
+
+
