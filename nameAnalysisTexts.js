@@ -1,6 +1,6 @@
 const nameAnalysis = {
     Text: [
-        'As %s, %s'
+        'As %s, you are %s %s. And also'
     ],
     Phrases: [
         'You are always stressful and it hurts your health and it harms people around you.',
@@ -26,18 +26,19 @@ const nameAnalysis = {
         'You love iPhone more than android, and I (the name analysis robot) agree with ya!',
         'You love winter more than summer. Because you are real Canadian!',
         'You love summer more than winter. Because you are a Cali person.',
-        ''
+        'You love samsung more than every other brand, interesting taste.'
 
     ],
-    Nouns: [
-
-    ],
-    Verbs: [
-
-    ],
-    Events: [
-
-    ]
+    Phrases2: [
+        'You are afraid of spiders, well at least you have a reasonable phobia.',
+        'You are responsible and generous.',
+        'You have deep interest in spiders!',
+        'You wear glasses that you should really change.',
+        'You are a Costco shopper!',
+        'You are the real Walmart shopper, who cares others ha ?',
+        'You don\'t like fashion at all, or trying to.',
+        'You always wanted to be a vegetarian, but your family didn\'t allow you to be one',
+    ]    
 }
 
 module.exports = nameAnalysis;

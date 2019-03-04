@@ -3,11 +3,11 @@ const nameAnalysisTexts = require('./nameAnalysisTexts');
 const analysis = require('./analysis');
 
 function handleGender() {
+debugger;
+    let textNum = analysis.hash('badbffad', 'male');
 
-    let textNum = analysis.hash('anan', 'male');
-
-    let speechOutput = nameAnalysisTexts.Phrases[textNum];
-
+    let speechOutput = nameAnalysisTexts.Phrases[textNum[0]] + nameAnalysisTexts.Phrases2[textNum[1]];
+    console.log(textNum);
     console.log(speechOutput);
 
 }
