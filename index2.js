@@ -260,7 +260,7 @@ const languageString = {
   en: {
     translation: {
     //   QUESTIONS: questions.QUESTIONS_EN_US,
-      GAME_NAME: 'Etkas Name Analysis',
+      GAME_NAME: 'Etka\'s Name Analysis',
       HELP_MESSAGE: 'I can help you understand whether your first name is helping or hurting you… Please tell me your first name…',
     //   HELP_MESSAGE: 'I will ask you %s multiple choice questions. Respond with the number of the answer. For example, say one, two, three, or four. To start a new game at any time, say, start game. ',
       REPEAT_QUESTION_MESSAGE: 'To repeat the last question, say, repeat. ',
@@ -287,7 +287,7 @@ const languageString = {
   'en-US': {
     translation: {
     //   QUESTIONS: questions.QUESTIONS_EN_US,
-      GAME_NAME: 'Etkas Name Analysis'
+      GAME_NAME: 'Etka\'s Name Analysis'
     },
   },
   'en-GB': {
@@ -543,7 +543,7 @@ function handleFirstName(handlerInput) {
 
   handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
 
-  let speechOutput = 'May I learn your gender ?';
+  let speechOutput = `Hi ${name}, May I learn your gender ?`;
 
   return handlerInput.responseBuilder
   .speak(speechOutput)
@@ -554,19 +554,25 @@ function handleFirstName(handlerInput) {
 }
 
 function handleGender(handlerInput) {
-    let sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
 
-    let textNum = analysis.hash(sessionAttributes.name, handlerInput.requestEnvelope.request.intent.slots.gender.value);
+    try {
+        let sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
 
-    let speechOutput = nameAnalysisTexts.Phrases[textNum];
-
-
-
-    return handlerInput.responseBuilder
-    .speak(speechOutput)
-    // .reprompt(repromptText)
-    // .withSimpleCard(requestAttributes.t('GAME_NAME'))
-    .getResponse();
+        let textNum = analysis.hash(sessionAttributes.name, handlerInput.requestEnvelope.request.intent.slots.gender.value);
+    
+        let speechOutput = nameAnalysisTexts.Phrases[textNum];
+    
+    
+    
+        return handlerInput.responseBuilder
+        .speak(speechOutput)
+        // .reprompt(repromptText)
+        // .withSimpleCard(requestAttributes.t('GAME_NAME'))
+        .getResponse();
+    } catch (error) {
+        console.log(error);
+    }
+   
 }
 
 

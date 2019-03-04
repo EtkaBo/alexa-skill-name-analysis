@@ -2,7 +2,7 @@ const index2 = require('./index2');
 const nameAnalysisTexts = require('./nameAnalysisTexts');
 const analysis = require('./analysis');
 
-function handleGender(handlerInput) {
+function handleGender() {
 
     let textNum = analysis.hash('anan', 'male');
 
@@ -12,7 +12,7 @@ function handleGender(handlerInput) {
 
 }
 
-handleGender()
+handleGender();
 
 
 let json = `{
