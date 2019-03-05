@@ -4,7 +4,7 @@ const analysis = require('./analysis');
 
 function handleGender() {
 debugger;
-    let textNum = analysis.hash('badbffad', 'male');
+    let textNum = analysis.hash('yea', 'female');
 
     let speechOutput = nameAnalysisTexts.Phrases[textNum[0]] + nameAnalysisTexts.Phrases2[textNum[1]];
     console.log(textNum);
@@ -13,7 +13,7 @@ debugger;
 }
 
 handleGender();
-
+ 
 
 let json = `{
 	"version": "1.0",
