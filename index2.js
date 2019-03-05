@@ -424,7 +424,7 @@ function handleGender(handlerInput) {
     try {
         let sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
 
-        let textNums = analysis.hash(sessionAttributes.name, handlerInput.requestEnvelope.request.intent.slots.gender.value);
+        let textNums = analysis.hash(sessionAttributes.firstName, handlerInput.requestEnvelope.request.intent.slots.gender.name);
     
         console.log(textNums)
 
@@ -432,6 +432,7 @@ function handleGender(handlerInput) {
                             + nameAnalysisTexts.Phrases[textNums[0]] 
                             + nameAnalysisTexts.Phrases2[textNums[1]];
         
+        console.log(textNums[0].toString() + textNums[1].toString())
 
         speechOutput += '\n\nWould you like to try another name ?'
     
