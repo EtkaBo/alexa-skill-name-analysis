@@ -1,6 +1,6 @@
 const nameAnalysisTexts = require('./nameAnalysisTexts')
 
-let analysis = {
+const analysis = {
      hash(name, gender) {
         let person = name + ' ' + gender;
         let asciiSum = 0;

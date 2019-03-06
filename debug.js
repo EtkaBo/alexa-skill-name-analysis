@@ -1,6 +1,7 @@
-const index2 = require('./index2');
+const index2 = require('./index3');
 const nameAnalysisTexts = require('./nameAnalysisTexts');
 const analysis = require('./analysis');
+const mainMethods = require('./mainMethods');
 
 function handleGender() {
 debugger;
