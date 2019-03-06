@@ -11,6 +11,114 @@ const steps = require('./steps');
 const analysis = require('./analysis');
 const nameAnalysisTexts = require('./nameAnalysisTexts');
 
+const ANSWER_COUNT = 4;
+const GAME_LENGTH = 5;
+
+
+function isAnswerSlotValid(intent) {
+  const answerSlotFilled = intent
+    && intent.slots
+    && intent.slots.Answer
+    && intent.slots.Answer.value;
+  const answerSlotIsInt = answerSlotFilled
+    && !Number.isNaN(parseInt(intent.slots.Answer.value, 10));
+  return answerSlotIsInt
+    && parseInt(intent.slots.Answer.value, 10) < (ANSWER_COUNT + 1)
+    && parseInt(intent.slots.Answer.value, 10) > 0;
+}
+
+function handleUserGuess(userGaveUp, handlerInput) {
+  const { requestEnvelope, attributesManager, responseBuilder } = handlerInput;
+  const { intent } = requestEnvelope.request;
+
+  const answerSlotValid = isAnswerSlotValid(intent);
+
+  let speechOutput = '';
+  let speechOutputAnalysis = '';
+
+  const sessionAttributes = attributesManager.getSessionAttributes();
+  const gameQuestions = sessionAttributes.questions;
+  let correctAnswerIndex = parseInt(sessionAttributes.correctAnswerIndex, 10);
+  let currentScore = parseInt(sessionAttributes.score, 10);
+  let currentQuestionIndex = parseInt(sessionAttributes.currentQuestionIndex, 10);
+  const { correctAnswerText } = sessionAttributes;
+  const requestAttributes = attributesManager.getRequestAttributes();
+  const translatedQuestions = requestAttributes.t('QUESTIONS');
+
+
+  if (answerSlotValid
+    && parseInt(intent.slots.Answer.value, 10) === sessionAttributes.correctAnswerIndex) {
+    currentScore += 1;
+    speechOutputAnalysis = requestAttributes.t('ANSWER_CORRECT_MESSAGE');
+  } else {
+    if (!userGaveUp) {
+      speechOutputAnalysis = requestAttributes.t('ANSWER_WRONG_MESSAGE');
+    }
+
+    speechOutputAnalysis += requestAttributes.t(
+      'CORRECT_ANSWER_MESSAGE',
+      correctAnswerIndex,
+      correctAnswerText
+    );
+  }
+
+  // Check if we can exit the game session after GAME_LENGTH questions (zero-indexed)
+  if (sessionAttributes.currentQuestionIndex === GAME_LENGTH - 1) {
+    speechOutput = userGaveUp ? '' : requestAttributes.t('ANSWER_IS_MESSAGE');
+    speechOutput += speechOutputAnalysis + requestAttributes.t(
+      'GAME_OVER_MESSAGE',
+      currentScore.toString(),
+      GAME_LENGTH.toString()
+    );
+
+    return responseBuilder
+      .speak(speechOutput)
+      .getResponse();
+  }
+  currentQuestionIndex += 1;
+  correctAnswerIndex = Math.floor(Math.random() * (ANSWER_COUNT));
+  const spokenQuestion = Object.keys(translatedQuestions[gameQuestions[currentQuestionIndex]])[0];
+  const roundAnswers = populateRoundAnswers(
+    gameQuestions,
+    currentQuestionIndex,
+    correctAnswerIndex,
+    translatedQuestions
+  );
+  const questionIndexForSpeech = currentQuestionIndex + 1;
+  let repromptText = requestAttributes.t(
+    'TELL_QUESTION_MESSAGE',
+    questionIndexForSpeech.toString(),
+    spokenQuestion
+  );
+
+  for (let i = 0; i < ANSWER_COUNT; i += 1) {
+    repromptText += `${i + 1}. ${roundAnswers[i]}. `;
+  }
+
+  speechOutput += userGaveUp ? '' : requestAttributes.t('ANSWER_IS_MESSAGE');
+  speechOutput += speechOutputAnalysis
+    + requestAttributes.t('SCORE_IS_MESSAGE', currentScore.toString())
+    + repromptText;
+
+  const translatedQuestion = translatedQuestions[gameQuestions[currentQuestionIndex]];
+
+  Object.assign(sessionAttributes, {
+    speechOutput: repromptText,
+    repromptText,
+    currentQuestionIndex,
+    correctAnswerIndex: correctAnswerIndex + 1,
+    questions: gameQuestions,
+    score: currentScore,
+    correctAnswerText: translatedQuestion[Object.keys(translatedQuestion)[0]][0]
+  });
+
+  return responseBuilder.speak(speechOutput)
+    .reprompt(repromptText)
+    .withSimpleCard(requestAttributes.t('GAME_NAME'), repromptText)
+    .getResponse();
+}
+
+
 
 function startGame(newGame, handlerInput) {
   const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
@@ -21,6 +129,26 @@ function startGame(newGame, handlerInput) {
     ? requestAttributes.t('NEW_GAME_MESSAGE', requestAttributes.t('GAME_NAME'))
       + requestAttributes.t('WELCOME_MESSAGE')
     : requestAttributes.t('Please tell me your first name…');
+
+//   const translatedQuestions = requestAttributes.t('QUESTIONS');
+
+//   const gameQuestions = populateGameQuestions(translatedQuestions);
+//   const correctAnswerIndex = Math.floor(Math.random() * (ANSWER_COUNT));
+
+//   const roundAnswers = populateRoundAnswers(
+//     gameQuestions,
+//     0,
+//     correctAnswerIndex,
+//     translatedQuestions
+//   );
+//   const currentQuestionIndex = 0;
+//   const spokenQuestion = Object.keys(translatedQuestions[gameQuestions[currentQuestionIndex]])[0];
+//   let repromptText = requestAttributes.t('TELL_QUESTION_MESSAGE', '1', spokenQuestion);
+//   for (let i = 0; i < ANSWER_COUNT; i += 1) {
+//     repromptText += `${i + 1}. ${roundAnswers[i]}. `;
+//   }
+
+    // let repromptText = requestAttributes.t()
 
     
 //   speechOutput += repromptText;
@@ -55,18 +183,33 @@ function startGame(newGame, handlerInput) {
     .getResponse();
 }
 
+function helpTheUser(newGame, handlerInput) {
+  const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
+  const askMessage = newGame
+    ? requestAttributes.t('ASK_MESSAGE_START')
+    : requestAttributes.t('REPEAT_QUESTION_MESSAGE') + requestAttributes.t('STOP_MESSAGE');
+  const speechOutput = requestAttributes.t('HELP_MESSAGE', GAME_LENGTH) + askMessage;
+  const repromptText = requestAttributes.t('HELP_REPROMPT') + askMessage;
+
+  return handlerInput.responseBuilder.speak(speechOutput).reprompt(repromptText).getResponse();
+}
+
+
+
+
 /* jshint -W101 */
 const languageString = {
   en: {
     translation: {
     //   QUESTIONS: questions.QUESTIONS_EN_US,
       GAME_NAME: 'Etka\'s Name Analysis',
+      ASK_MESSAGE_START: 'Would you like to start from beginning?',
       HELP_MESSAGE: 'I can help you understand whether your first name is helping or hurting you… ',
       FIRST_NAME: 'Please tell me your first name…',
       HELP_REPROMPT: 'To give an answer to a question, respond with the number of the answer. ',
       STOP_MESSAGE: 'Would you like to keep playing?',
       CANCEL_MESSAGE: 'Ok, let\'s play again soon.',
-      NO_MESSAGE: 'Thank you for trying Etka\'s Name Analysis.Don\'t forget, your name can both help you or hurt you!',
+      NO_MESSAGE: 'Thank you for trying Etka\'s Name Analysis.Don\'t forget, your name can both help you or hurt you.',
       NEW_GAME_MESSAGE: 'Hello, Welcome to %s. ',
       WELCOME_MESSAGE: 'I can help you understand whether your first name is helping or hurting you… Please tell me your first name…',
     },
@@ -130,8 +273,7 @@ const SessionEndedRequest = {
   handle(handlerInput) {
     console.log(`Session ended with reason: ${handlerInput.requestEnvelope.request.reason}`);
 
-    return ErrorHandler.handle(handlerInput,null);
-    // return handlerInput.responseBuilder.getResponse();
+    return handlerInput.responseBuilder.getResponse();
   },
 };
 
@@ -257,15 +399,9 @@ const firstNameResponse = {
 
 function handleFirstName(handlerInput) {
 
-  let sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-
-  if(sessionAttributes.step === steps[2] && sessionAttributes.firstName !== null) {
-    return handleGender(handlerInput);
-  }
-
   const name = handlerInput.requestEnvelope.request.intent.slots.firstNames.value;
 
-   sessionAttributes = {};
+    const sessionAttributes = {};
 
   Object.assign(sessionAttributes, {
      firstName: name,
@@ -278,7 +414,7 @@ function handleFirstName(handlerInput) {
 
   return handlerInput.responseBuilder
   .speak(speechOutput)
-  .reprompt(speechOutput)
+  // .reprompt(repromptText)
 //   .withSimpleCard(requestAttributes.t('GAME_NAME'))
   .getResponse();
     
@@ -289,9 +425,6 @@ function handleGender(handlerInput) {
     try {
         let sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
 
-        if(sessionAttributes.step === steps[1]) {
-          return startGame(false,handlerInput);
-        }
         let textNums = analysis.hash(sessionAttributes.firstName, handlerInput.requestEnvelope.request.intent.slots.gender.name);
     
         console.log(textNums)
@@ -306,7 +439,7 @@ function handleGender(handlerInput) {
     
         return handlerInput.responseBuilder
         .speak(speechOutput)
-        .reprompt(speechOutput)
+        // .reprompt(repromptText)
         // .withSimpleCard(requestAttributes.t('GAME_NAME'))
         .getResponse();
     } catch (error) {
@@ -336,5 +469,3 @@ exports.handler = skillBuilder
   .addRequestInterceptors(LocalizationInterceptor)
   .addErrorHandlers(ErrorHandler)
   .lambda();
-
-
