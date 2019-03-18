@@ -5,6 +5,9 @@ const analysis = {
         let person = name + ' ' + gender;
         let asciiSum = 0;
 
+        console.log(`name ${name} gender: ${gender}`);
+
+
         const phrase = nameAnalysisTexts.Phrases.length;
         const phrase2 = nameAnalysisTexts.Phrases2.length;
 

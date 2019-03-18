@@ -36,13 +36,13 @@ handleFirstName(handlerInput) {
       try {
           let sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
   
-          let textNums = analysis.hash(sessionAttributes.firstName, handlerInput.requestEnvelope.request.intent.slots.gender.name);
+          let textNums = analysis.hash(sessionAttributes.firstName, handlerInput.requestEnvelope.request.intent.slots.gender.value);
       
           console.log(textNums)
   
           let speechOutput = `As ${sessionAttributes.firstName} ` 
                               + nameAnalysisTexts.Phrases[textNums[0]] 
-                              + nameAnalysisTexts.Phrases2[textNums[1]];
+                              + ' ' + nameAnalysisTexts.Phrases2[textNums[1]];
           
           console.log(textNums[0].toString() + textNums[1].toString())
   

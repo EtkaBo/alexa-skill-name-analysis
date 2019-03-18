@@ -35,7 +35,7 @@ const languageString = {
       HELP_REPROMPT: 'To give an answer to a question, respond with the number of the answer. ',
       STOP_MESSAGE: 'Would you like to keep playing?',
       CANCEL_MESSAGE: 'Ok, let\'s play again soon.',
-      NO_MESSAGE: 'Thank you for trying Etka\'s Name Analysis.Don\'t forget, your name can both help you or hurt you.',
+      NO_MESSAGE: 'Thank you for trying Etka\'s Name Analysis. Don\'t forget, your name can both help you or hurt you.',
       NEW_GAME_MESSAGE: 'Hello, Welcome to %s. ',
       WELCOME_MESSAGE: 'I can help you understand whether your first name is helping or hurting you… Please tell me your first name…',
     },
