@@ -36,7 +36,7 @@ handleFirstName(handlerInput) {
       try {
           let sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
   
-          let textNums = analysis.hash(sessionAttributes.firstName, handlerInput.requestEnvelope.request.intent.slots.gender.value);
+          let textNums = analysis.hash(sessionAttributes.firstName, handlerInput.requestEnvelope.request.intent.slots.gender.resolutions.resolutionsPerAuthority[0].values[0].value.name);
       
           console.log(textNums)
   
